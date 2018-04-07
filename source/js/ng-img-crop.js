@@ -13,13 +13,23 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       resultImageSize: '=',
       resultImageFormat: '@',
       resultImageQuality: '=',
+      canRotate: '=',
 
       onChange: '&',
       onLoadBegin: '&',
       onLoadDone: '&',
       onLoadError: '&'
     },
-    template: '<canvas></canvas>',
+    template: `'
+    <div ng-if="canRotate" class="rotate-buttons">
+      <button class="rotate-button" ng-click="rotateLeft()">Rotate left</button>
+      <button class="rotate-button" ng-click="rotateRight()">Rotate right</button>
+    </div>
+    <div>
+      <canvas>
+
+      </canvas>
+    </div>'`,
     controller: ['$scope', function($scope) {
       $scope.events = new CropPubSub();
     }],
@@ -116,6 +126,14 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       scope.$on('$destroy', function(){
           cropHost.destroy();
       });
+
+      scope.rotateLeft = function(){
+        cropHost.rotate(false);
+      }
+
+      scope.rotateRight = function(){
+        cropHost.rotate(true);
+      }
     }
   };
 }]);

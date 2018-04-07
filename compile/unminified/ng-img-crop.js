@@ -2,10 +2,10 @@
  * ngImgCrop v0.3.2
  * https://github.com/alexk111/ngImgCrop
  *
- * Copyright (c) 2014 Alex Kaul
+ * Copyright (c) 2018 Alex Kaul
  * License: MIT
  *
- * Generated at Wednesday, December 3rd, 2014, 3:54:12 PM
+ * Generated at Saturday, April 7th, 2018, 11:31:59 AM
  */
 (function() {
 'use strict';
@@ -1699,6 +1699,41 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
       drawScene();
     };
 
+    this.rotate = function(isClockwise) {
+      if ( !image ) return;
+      rotateBase64Image( image.src, isClockwise, function(result) {
+        image.src=result;
+        events.trigger('image-updated');               
+      });
+    }
+    
+    // http://stackoverflow.com/questions/17040360/javascript-function-to-rotate-a-base-64-image-by-x-degrees-and-return-new-base64
+    function rotateBase64Image(base64data, isClockwise, callback) {
+      var _image = new Image();
+      _image.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = _image.height;
+        canvas.height = _image.width;
+        var deg = isClockwise ? Math.PI / 2 : Math.PI / -2;
+        var _ctx = canvas.getContext("2d");
+        // translate to center-canvas 
+        // the origin [0,0] is now center-canvas
+        _ctx.translate(canvas.width / 2, canvas.height / 2);
+        // roate the canvas by +90% (==Math.PI/2)
+        _ctx.rotate(deg);
+        // draw the signature
+        // since images draw from top-left offset the draw by 1/2 width & height
+        _ctx.drawImage(_image, -_image.width / 2, -_image.height / 2);
+        // un-rotate the canvas by -90% (== -Math.PI/2)
+        _ctx.rotate(-deg);
+        // un-translate the canvas back to origin==top-left canvas
+        _ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        callback(canvas.toDataURL());
+      };
+      //image.crossOrigin = "Anonymous";
+      _image.src = base64data;
+    }
+
     /* Life Cycle begins */
 
     // Init Context var
@@ -1770,13 +1805,23 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       resultImageSize: '=',
       resultImageFormat: '@',
       resultImageQuality: '=',
+      canRotate: '=',
 
       onChange: '&',
       onLoadBegin: '&',
       onLoadDone: '&',
       onLoadError: '&'
     },
-    template: '<canvas></canvas>',
+    template: `'
+    <div ng-if="can-rotate" class="rotate-buttons">
+      <button class="rotate-button" ng-click="rotateLeft()">Rotate left</button>
+      <button class="rotate-button" ng-click="rotateRight()">Rotate right</button>
+    </div>
+    <div>
+      <canvas>
+
+      </canvas>
+    </div>'`,
     controller: ['$scope', function($scope) {
       $scope.events = new CropPubSub();
     }],
@@ -1873,6 +1918,14 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       scope.$on('$destroy', function(){
           cropHost.destroy();
       });
+
+      scope.rotateLeft = function(){
+        cropHost.rotate(false);
+      }
+
+      scope.rotateRight = function(){
+        cropHost.rotate(true);
+      }
     }
   };
 }]);

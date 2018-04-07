@@ -12,7 +12,7 @@ Angular(1) directive for cropping identity photographs. The forked directive add
 - npm
 - bower
 
-## Build and install directive
+## Build and use directive
 
 ```
 npm install
@@ -27,9 +27,16 @@ will produce `ng-img-crop.css` and `ng-img-crop.js`  in the `compile/unminified`
 <link rel="stylesheet" type="text/css" href="ng-img-crop.css">
 ```
 
+Add the image crop module as a dependancy to your application module:
+
+```
+var myAppModule = angular.module('MyApp', ['ngImgCrop']);
+```
+
+
 ## Usage
 
 Follow <a href ="https://github.com/alexk111/ngImgCrop#usage">these instructions</a> and then consider that:
 - you can add rotation by setting the `can-rotate` attributo of the `<img-crop>` element to `true`
 - you can set the miminum resolution by setting the `min-resolution` attribute
-- you can set the resolution tollerance by setting the 'tollerance-ratio' attribute
+- you can set the resolution tollerance by setting the `tollerance-ratio` attribute
